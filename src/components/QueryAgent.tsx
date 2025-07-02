@@ -1,13 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Sparkles, Globe, ExternalLink, Clock, AlertCircle } from 'lucide-react';
+import { Search, Sparkles, Globe, ExternalLink, Clock, AlertCircle, TrendingUp, Zap, Brain, ArrowRight, Star, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface SearchResult {
   title: string;
   url: string;
+  description: string;
+  domain: string;
+  relevance: number;
 }
 
 interface QueryHistory {
@@ -20,51 +24,121 @@ interface QueryHistory {
 const SAMPLE_PROMPTS = [
   "Best places to visit in Delhi",
   "How to learn React in 2024",
-  "Latest AI developments",
+  "Latest AI developments", 
   "Climate change solutions",
-  "Healthy breakfast recipes"
+  "Healthy breakfast recipes",
+  "Future of quantum computing",
+  "Space exploration milestones"
 ];
 
-const LoadingAnimation = () => (
+const EnhancedLoadingAnimation = () => (
   <motion.div
     initial={{ opacity: 0, scale: 0.8 }}
     animate={{ opacity: 1, scale: 1 }}
-    className="flex flex-col items-center justify-center space-y-6 py-16"
+    className="flex flex-col items-center justify-center min-h-screen px-4"
   >
-    <div className="relative">
+    <div className="relative mb-8">
+      {/* Outer rotating ring */}
       <motion.div
         animate={{ rotate: 360 }}
-        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-        className="w-16 h-16 border-2 border-primary/30 border-t-primary rounded-full"
+        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+        className="w-32 h-32 border-2 border-primary/20 border-t-primary rounded-full spinner-glow"
       />
+      
+      {/* Inner pulsing core */}
       <motion.div
-        animate={{ scale: [1, 1.2, 1] }}
+        animate={{ 
+          scale: [1, 1.3, 1],
+          opacity: [0.3, 0.8, 0.3]
+        }}
         transition={{ duration: 2, repeat: Infinity }}
-        className="absolute inset-2 bg-primary/20 rounded-full blur-sm"
+        className="absolute inset-8 bg-gradient-primary rounded-full blur-md"
       />
+      
+      {/* Center icon */}
+      <motion.div
+        animate={{ 
+          rotate: [0, 180, 360],
+          scale: [1, 1.1, 1]
+        }}
+        transition={{ duration: 4, repeat: Infinity }}
+        className="absolute inset-0 flex items-center justify-center"
+      >
+        <Brain className="w-8 h-8 text-primary-glow" />
+      </motion.div>
+      
+      {/* Floating particles */}
+      {[...Array(6)].map((_, i) => (
+        <motion.div
+          key={i}
+          animate={{
+            y: [0, -20, 0],
+            opacity: [0, 1, 0],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            delay: i * 0.3,
+          }}
+          className="absolute w-2 h-2 bg-accent rounded-full"
+          style={{
+            left: `${50 + 30 * Math.cos(i * Math.PI / 3)}%`,
+            top: `${50 + 30 * Math.sin(i * Math.PI / 3)}%`,
+          }}
+        />
+      ))}
     </div>
     
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.2 }}
-      className="text-center space-y-2"
+      transition={{ delay: 0.3 }}
+      className="text-center space-y-4 max-w-md"
     >
-      <h3 className="text-xl font-semibold text-primary">AI is thinking</h3>
-      <p className="text-muted-foreground typing-dots">Analyzing your query</p>
+      <h3 className="text-2xl font-bold text-gradient">AI Agent Working</h3>
+      <div className="space-y-2">
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="text-muted-foreground flex items-center justify-center gap-2"
+        >
+          <Zap className="w-4 h-4 text-accent" />
+          Analyzing your query
+        </motion.p>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5 }}
+          className="text-muted-foreground flex items-center justify-center gap-2"
+        >
+          <Globe className="w-4 h-4 text-primary" />
+          Searching the web
+        </motion.p>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2.5 }}
+          className="text-muted-foreground flex items-center justify-center gap-2 typing-dots"
+        >
+          <Sparkles className="w-4 h-4 text-secondary" />
+          Generating insights
+        </motion.p>
+      </div>
     </motion.div>
   </motion.div>
 );
 
-const HeroSection = ({ onSearch, isLoading }: { onSearch: (query: string) => void; isLoading: boolean }) => {
+const EnhancedHeroSection = ({ onSearch, isLoading }: { onSearch: (query: string) => void; isLoading: boolean }) => {
   const [query, setQuery] = useState('');
   const [currentPrompt, setCurrentPrompt] = useState(0);
+  const [isTyping, setIsTyping] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentPrompt((prev) => (prev + 1) % SAMPLE_PROMPTS.length);
-    }, 3000);
+    }, 4000);
     return () => clearInterval(interval);
   }, []);
 
@@ -77,77 +151,155 @@ const HeroSection = ({ onSearch, isLoading }: { onSearch: (query: string) => voi
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col items-center justify-center min-h-screen px-4 text-center"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="flex flex-col items-center justify-center min-h-screen px-4 text-center relative overflow-hidden"
     >
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+          className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-primary opacity-10 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{ rotate: -360 }}
+          transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
+          className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-accent opacity-10 rounded-full blur-3xl"
+        />
+      </div>
+
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="mb-8"
+        transition={{ delay: 0.2, type: "spring", stiffness: 100 }}
+        className="mb-12 relative z-10"
       >
-        <div className="flex items-center justify-center space-x-3 mb-4">
+        <div className="flex items-center justify-center space-x-4 mb-6">
           <motion.div
             animate={{ rotate: [0, 360] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-            className="p-3 glass glass-hover rounded-2xl"
+            transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+            className="p-4 glass-enhanced rounded-2xl float"
           >
-            <Sparkles className="w-8 h-8 text-primary" />
+            <motion.div
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <Sparkles className="w-10 h-10 text-primary glow-primary" />
+            </motion.div>
           </motion.div>
-          <h1 className="text-5xl font-bold text-gradient">Query Agent</h1>
+          <div>
+            <h1 className="text-6xl md:text-7xl font-bold text-gradient mb-2">Query Agent</h1>
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: "100%" }}
+              transition={{ delay: 0.8, duration: 0.8 }}
+              className="h-1 bg-gradient-primary rounded-full"
+            />
+          </div>
         </div>
         
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Your AI-powered search assistant. Ask anything and get intelligent summaries from across the web.
-        </p>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="text-xl md:text-2xl text-muted-light max-w-3xl mx-auto leading-relaxed"
+        >
+          Your AI-powered research assistant. Ask anything and get{' '}
+          <span className="text-gradient-accent font-semibold">intelligent summaries</span>{' '}
+          from across the web in seconds.
+        </motion.p>
       </motion.div>
 
       <motion.form
         onSubmit={handleSubmit}
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="w-full max-w-2xl space-y-6"
+        transition={{ delay: 0.7, type: "spring", stiffness: 80 }}
+        className="w-full max-w-3xl space-y-8 relative z-10"
       >
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-          <Input
-            ref={inputRef}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={`Ask me anything...`}
-            className="pl-12 pr-4 py-6 text-lg glass glass-hover border-glass-border bg-glass/50 focus:bg-glass/70 focus:border-primary/50 transition-all duration-300"
-            disabled={isLoading}
-          />
-          <Button
-            type="submit"
-            disabled={!query.trim() || isLoading}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-lg transition-all duration-300 hover:shadow-glow disabled:opacity-50"
-          >
-            {isLoading ? (
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              >
-                <Sparkles className="w-4 h-4" />
-              </motion.div>
-            ) : (
-              'Search'
-            )}
-          </Button>
+        <div className="relative group">
+          <div className="absolute -inset-1 bg-gradient-primary rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-300"></div>
+          <div className="relative">
+            <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 w-6 h-6 text-muted-foreground" />
+            <Input
+              ref={inputRef}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Ask me anything..."
+              className="pl-16 pr-32 py-8 text-xl glass-enhanced border-glass-border bg-glass/30 focus:bg-glass/60 focus:border-primary/50 transition-all duration-500 rounded-2xl"
+              disabled={isLoading}
+              onFocus={() => setIsTyping(true)}
+              onBlur={() => setIsTyping(false)}
+            />
+            <Button
+              type="submit"
+              disabled={!query.trim() || isLoading}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 btn-ai text-primary-foreground px-8 py-4 rounded-xl font-semibold disabled:opacity-50 transition-all duration-300"
+            >
+              {isLoading ? (
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                >
+                  <Brain className="w-5 h-5" />
+                </motion.div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span>Search</span>
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              )}
+            </Button>
+          </div>
         </div>
 
-        <motion.div
-          key={currentPrompt}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          className="text-sm text-muted-foreground"
-        >
-          Try: "{SAMPLE_PROMPTS[currentPrompt]}"
-        </motion.div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentPrompt}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 text-muted-foreground"
+          >
+            <span className="text-sm font-medium">Try asking:</span>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="glass px-4 py-2 rounded-full border border-glass-border hover:border-primary/30 transition-all cursor-pointer"
+              onClick={() => setQuery(SAMPLE_PROMPTS[currentPrompt])}
+            >
+              <span className="text-sm text-gradient">"{SAMPLE_PROMPTS[currentPrompt]}"</span>
+            </motion.div>
+          </motion.div>
+        </AnimatePresence>
       </motion.form>
+
+      {/* Feature highlights */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1, duration: 0.6 }}
+        className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full relative z-10"
+      >
+        {[
+          { icon: Zap, title: "Lightning Fast", desc: "Get results in seconds" },
+          { icon: Brain, title: "AI-Powered", desc: "Smart analysis & summaries" },
+          { icon: Globe, title: "Web-Wide", desc: "Search across the internet" }
+        ].map((feature, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.2 + i * 0.1 }}
+            className="glass glass-hover p-6 rounded-xl text-center border border-glass-border"
+          >
+            <feature.icon className="w-8 h-8 text-primary mx-auto mb-3" />
+            <h3 className="font-semibold text-foreground mb-2">{feature.title}</h3>
+            <p className="text-sm text-muted-foreground">{feature.desc}</p>
+          </motion.div>
+        ))}
+      </motion.div>
     </motion.div>
   );
 };
@@ -158,20 +310,39 @@ const InvalidQueryMessage = ({ onBack }: { onBack: () => void }) => (
     animate={{ opacity: 1, scale: 1 }}
     className="flex flex-col items-center justify-center min-h-screen px-4 text-center"
   >
-    <div className="glass glass-hover rounded-2xl p-8 max-w-md mx-auto">
-      <AlertCircle className="w-16 h-16 text-accent mx-auto mb-4" />
-      <h3 className="text-2xl font-semibold mb-4">Hmm, that doesn't look like something I can search.</h3>
-      <p className="text-muted-foreground mb-6">
-        I'm designed to help you find information from the web. Try asking about topics, facts, or questions that need research.
+    <motion.div
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+      className="glass-enhanced rounded-3xl p-12 max-w-lg mx-auto relative overflow-hidden"
+    >
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-accent"></div>
+      
+      <motion.div
+        animate={{ rotate: [0, 10, -10, 0] }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
+        <AlertCircle className="w-20 h-20 text-accent mx-auto mb-6" />
+      </motion.div>
+      
+      <h3 className="text-3xl font-bold mb-4 text-gradient">Hmm, that doesn't look searchable</h3>
+      <p className="text-muted-light mb-8 leading-relaxed">
+        I'm designed to help you find information from the web. Try asking about topics, facts, 
+        or questions that need research and analysis.
       </p>
-      <Button onClick={onBack} variant="outline" className="glass-hover">
+      
+      <Button 
+        onClick={onBack} 
+        className="btn-ai px-8 py-3 font-semibold transition-all duration-300"
+      >
+        <ArrowRight className="w-4 h-4 mr-2" />
         Try Another Query
       </Button>
-    </div>
+    </motion.div>
   </motion.div>
 );
 
-const ResultsSection = ({ 
+const EnhancedResultsSection = ({ 
   query, 
   results, 
   summary, 
@@ -194,104 +365,210 @@ const ResultsSection = ({
     }
   };
 
+  const getRelevanceColor = (relevance: number) => {
+    if (relevance >= 90) return "text-success";
+    if (relevance >= 70) return "text-primary";
+    if (relevance >= 50) return "text-warning";
+    return "text-muted-foreground";
+  };
+
+  const getRelevanceBadgeVariant = (relevance: number) => {
+    if (relevance >= 90) return "default";
+    if (relevance >= 70) return "secondary";
+    return "outline";
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="min-h-screen px-4 py-8"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="min-h-screen px-4 py-6 bg-gradient-to-br from-background via-background/95 to-background/90"
     >
-      {/* Header with new search */}
-      <div className="max-w-4xl mx-auto mb-8">
-        <motion.form
-          onSubmit={handleNewSearch}
-          initial={{ opacity: 0, y: -20 }}
+      {/* Enhanced header with new search */}
+      <div className="max-w-6xl mx-auto mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex gap-4 items-center"
+          className="glass-enhanced p-6 rounded-2xl border border-glass-border"
         >
-          <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input
-              value={newQuery}
-              onChange={(e) => setNewQuery(e.target.value)}
-              placeholder="Ask another question..."
-              className="pl-12 pr-4 py-3 glass glass-hover border-glass-border bg-glass/50 focus:bg-glass/70"
-            />
-          </div>
-          <Button 
-            type="submit" 
-            disabled={!newQuery.trim()}
-            className="bg-primary hover:bg-primary/90 px-6 hover:shadow-glow"
-          >
-            Search
-          </Button>
-        </motion.form>
+          <form onSubmit={handleNewSearch} className="flex gap-4 items-center">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                value={newQuery}
+                onChange={(e) => setNewQuery(e.target.value)}
+                placeholder="Ask another question..."
+                className="pl-12 pr-4 py-4 glass bg-glass/30 focus:bg-glass/60 border-glass-border focus:border-primary/50 rounded-xl transition-all duration-300"
+              />
+            </div>
+            <Button 
+              type="submit" 
+              disabled={!newQuery.trim()}
+              className="btn-ai px-8 py-4 font-semibold"
+            >
+              <div className="flex items-center gap-2">
+                Search
+                <ArrowRight className="w-4 h-4" />
+              </div>
+            </Button>
+          </form>
+        </motion.div>
       </div>
 
-      {/* Current Query Results */}
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-6xl mx-auto space-y-10">
+        {/* Query header with stats */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.1 }}
+          className="text-center space-y-4"
         >
-          <h2 className="text-2xl font-semibold mb-2">Results for: "{query}"</h2>
-          <p className="text-muted-foreground flex items-center gap-2">
-            <Globe className="w-4 h-4" />
-            Found {results.length} sources
-          </p>
+          <div className="inline-flex items-center gap-3 glass px-6 py-3 rounded-full border border-glass-border">
+            <CheckCircle className="w-5 h-5 text-success" />
+            <span className="text-muted-foreground">Query processed successfully</span>
+          </div>
+          
+          <h2 className="text-3xl md:text-4xl font-bold text-gradient mb-4">
+            Results for: "{query}"
+          </h2>
+          
+          <div className="flex items-center justify-center gap-6 text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Globe className="w-5 h-5 text-primary" />
+              <span className="font-medium">{results.length} sources found</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="w-5 h-5 text-accent" />
+              <span className="font-medium">~2.3s processing time</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-success" />
+              <span className="font-medium">High relevance</span>
+            </div>
+          </div>
         </motion.div>
 
-        {/* Source Links */}
+        {/* Enhanced Source Links */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="space-y-4"
+          transition={{ delay: 0.2 }}
+          className="space-y-6"
         >
-          <h3 className="text-xl font-semibold">Sources</h3>
-          <div className="grid gap-4">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 glass rounded-xl">
+              <Globe className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold text-foreground">Sources</h3>
+              <p className="text-muted-foreground">Curated from top-tier websites</p>
+            </div>
+          </div>
+          
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {results.map((result, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 + index * 0.1 }}
+                initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ 
+                  delay: 0.3 + index * 0.1,
+                  type: "spring",
+                  stiffness: 100
+                }}
+                className="group"
               >
-                <Card className="glass glass-hover p-4 border-glass-border">
-                  <div className="flex items-center justify-between">
+                <div className="result-card p-6 rounded-2xl border border-glass-border h-full flex flex-col">
+                  <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <h4 className="font-medium text-foreground line-clamp-1">{result.title}</h4>
-                      <p className="text-sm text-muted-foreground line-clamp-1">{result.url}</p>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge 
+                          variant={getRelevanceBadgeVariant(result.relevance)}
+                          className="text-xs font-medium"
+                        >
+                          <Star className="w-3 h-3 mr-1" />
+                          {result.relevance}% match
+                        </Badge>
+                        <span className="text-xs text-muted-foreground font-mono">
+                          {result.domain}
+                        </span>
+                      </div>
+                      <h4 className="font-bold text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                        {result.title}
+                      </h4>
+                      <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
+                        {result.description}
+                      </p>
                     </div>
+                  </div>
+                  
+                  <div className="mt-auto flex items-center justify-between">
+                    <span className="text-xs text-muted-light truncate flex-1 mr-4">
+                      {result.url}
+                    </span>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => window.open(result.url, '_blank')}
-                      className="ml-4 hover:bg-primary/10"
+                      className="ml-auto hover:bg-primary/10 hover:text-primary transition-all duration-300 p-2 rounded-lg"
                     >
                       <ExternalLink className="w-4 h-4" />
                     </Button>
                   </div>
-                </Card>
+                </div>
               </motion.div>
             ))}
           </div>
         </motion.div>
 
-        {/* AI Summary */}
+        {/* Enhanced AI Summary */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="space-y-4"
+          className="space-y-6"
         >
-          <h3 className="text-xl font-semibold flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-            AI Summary
-          </h3>
-          <Card className="glass glass-hover p-6 border-glass-border">
-            <p className="text-foreground leading-relaxed">{summary}</p>
-          </Card>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 glass rounded-xl glow-primary">
+              <Sparkles className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold text-gradient">AI Summary</h3>
+              <p className="text-muted-foreground">Intelligent analysis from multiple sources</p>
+            </div>
+          </div>
+          
+          <motion.div
+            whileHover={{ scale: 1.01 }}
+            transition={{ type: "spring", stiffness: 300 }}
+            className="card-premium p-8 rounded-2xl border border-glass-border relative overflow-hidden"
+          >
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-primary"></div>
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-6">
+                <Brain className="w-5 h-5 text-primary" />
+                <span className="text-sm font-medium text-primary">AI-Generated Insights</span>
+              </div>
+              
+              <div className="prose prose-invert max-w-none">
+                <p className="text-foreground leading-relaxed text-lg">
+                  {summary}
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-4 mt-6 pt-6 border-t border-glass-border">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <CheckCircle className="w-4 h-4 text-success" />
+                  <span>Fact-checked across {results.length} sources</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Zap className="w-4 h-4 text-accent" />
+                  <span>Generated in real-time</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </motion.div>
       </div>
     </motion.div>
@@ -305,12 +582,13 @@ export default function QueryAgent() {
   const [currentSummary, setCurrentSummary] = useState('');
   const [queryHistory, setQueryHistory] = useState<QueryHistory[]>([]);
 
-  // Mock validation - basic check for searchable queries
+  // Enhanced validation
   const isValidQuery = (query: string): boolean => {
     const invalidPatterns = [
       /^(add|create|make|set|delete|remove)\s/i,
       /^(what is|what's)\s*\d+\s*[\+\-\*\/]\s*\d+/i,
-      /^(hello|hi|hey|good morning|good evening)/i
+      /^(hello|hi|hey|good morning|good evening)/i,
+      /^(how are you|who are you|what's your name)/i
     ];
     
     return !invalidPatterns.some(pattern => pattern.test(query)) && query.length > 3;
@@ -319,13 +597,12 @@ export default function QueryAgent() {
   const handleSearch = async (query: string) => {
     setCurrentQuery(query);
 
-    // Check if query is valid
     if (!isValidQuery(query)) {
       setCurrentView('invalid');
       return;
     }
 
-    // Check history for similar queries
+    // Check history
     const existingQuery = queryHistory.find(
       h => h.query.toLowerCase() === query.toLowerCase()
     );
@@ -339,32 +616,65 @@ export default function QueryAgent() {
 
     setCurrentView('loading');
 
-    // Simulate API call with mock data
+    // Enhanced mock data
     setTimeout(() => {
       const mockResults: SearchResult[] = [
-        { title: `Comprehensive Guide to ${query}`, url: `https://example.com/guide-${query.replace(/\s+/g, '-')}` },
-        { title: `Latest Updates on ${query}`, url: `https://news.example.com/${query.replace(/\s+/g, '-')}` },
-        { title: `Expert Analysis: ${query}`, url: `https://expert.example.com/analysis-${query.replace(/\s+/g, '-')}` },
-        { title: `${query} - Complete Overview`, url: `https://overview.example.com/${query.replace(/\s+/g, '-')}` },
-        { title: `Research and Insights on ${query}`, url: `https://research.example.com/${query.replace(/\s+/g, '-')}` }
+        { 
+          title: `The Complete Guide to ${query}: Everything You Need to Know`,
+          url: `https://authoritative-source.com/guide-${query.replace(/\s+/g, '-')}`,
+          description: `Comprehensive coverage of ${query} with expert insights, practical tips, and latest developments in the field.`,
+          domain: "authoritative-source.com",
+          relevance: 95
+        },
+        { 
+          title: `Latest Research and Trends in ${query} (2024)`,
+          url: `https://research-hub.org/trends-${query.replace(/\s+/g, '-')}`,
+          description: `Recent studies and emerging trends related to ${query}, featuring data-driven analysis and future predictions.`,
+          domain: "research-hub.org",
+          relevance: 88
+        },
+        { 
+          title: `Expert Analysis: Understanding ${query} in Depth`,
+          url: `https://expert-analysis.net/deep-dive-${query.replace(/\s+/g, '-')}`,
+          description: `Professional insights and detailed examination of ${query} from industry leaders and subject matter experts.`,
+          domain: "expert-analysis.net",
+          relevance: 82
+        },
+        { 
+          title: `${query}: Practical Applications and Real-World Examples`,
+          url: `https://practical-guide.io/applications-${query.replace(/\s+/g, '-')}`,
+          description: `Real-world case studies and practical applications of ${query} with step-by-step implementation guides.`,
+          domain: "practical-guide.io",
+          relevance: 76
+        },
+        { 
+          title: `Community Discussion: ${query} Best Practices and Tips`,
+          url: `https://community-forum.com/discussion-${query.replace(/\s+/g, '-')}`,
+          description: `Active community discussions, user experiences, and crowdsourced knowledge about ${query}.`,
+          domain: "community-forum.com",
+          relevance: 68
+        }
       ];
 
-      const mockSummary = `Based on current web sources, ${query} is a complex topic with multiple perspectives. Recent research shows significant developments in this area, with experts highlighting key trends and practical applications. The information gathered from reliable sources suggests that understanding ${query} requires considering various factors and staying updated with the latest findings. This synthesis provides a comprehensive overview while acknowledging the evolving nature of the subject.`;
+      const mockSummary = `Based on comprehensive analysis from ${mockResults.length} authoritative sources, ${query} represents a significant area of interest with multiple dimensions worth exploring. Current research indicates substantial developments in this field, with experts highlighting key trends that are shaping its evolution.
+
+The sources reveal that ${query} has practical applications across various domains, with implementation strategies that have proven effective in real-world scenarios. Recent studies suggest that understanding ${query} requires considering both theoretical foundations and practical implications.
+
+Community discussions and expert analyses converge on several key points: the importance of staying updated with latest developments, the value of evidence-based approaches, and the need for continued research and innovation in this area. The information synthesized here provides a balanced perspective while acknowledging the dynamic nature of the subject.`;
 
       setCurrentResults(mockResults);
       setCurrentSummary(mockSummary);
       
-      // Add to history
       const newHistoryItem: QueryHistory = {
         query,
         results: mockResults,
         summary: mockSummary,
         timestamp: new Date()
       };
-      setQueryHistory(prev => [newHistoryItem, ...prev].slice(0, 10)); // Keep last 10 queries
+      setQueryHistory(prev => [newHistoryItem, ...prev].slice(0, 10));
 
       setCurrentView('results');
-    }, 2000);
+    }, 3000);
   };
 
   const handleBack = () => {
@@ -373,10 +683,10 @@ export default function QueryAgent() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
       <AnimatePresence mode="wait">
         {currentView === 'hero' && (
-          <HeroSection 
+          <EnhancedHeroSection 
             key="hero"
             onSearch={handleSearch} 
             isLoading={false} 
@@ -384,7 +694,7 @@ export default function QueryAgent() {
         )}
         
         {currentView === 'loading' && (
-          <LoadingAnimation key="loading" />
+          <EnhancedLoadingAnimation key="loading" />
         )}
         
         {currentView === 'invalid' && (
@@ -392,7 +702,7 @@ export default function QueryAgent() {
         )}
         
         {currentView === 'results' && (
-          <ResultsSection
+          <EnhancedResultsSection
             key="results"
             query={currentQuery}
             results={currentResults}

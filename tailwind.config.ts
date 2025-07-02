@@ -30,15 +30,18 @@ export default {
 				glass: {
 					DEFAULT: 'hsl(var(--glass))',
 					border: 'hsl(var(--glass-border))',
+					hover: 'hsl(var(--glass-hover))',
 				},
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))',
-					glow: 'hsl(var(--primary-glow))'
+					glow: 'hsl(var(--primary-glow))',
+					dark: 'hsl(var(--primary-dark))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))'
+					foreground: 'hsl(var(--secondary-foreground))',
+					glow: 'hsl(var(--secondary-glow))'
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
@@ -46,12 +49,22 @@ export default {
 				},
 				muted: {
 					DEFAULT: 'hsl(var(--muted))',
-					foreground: 'hsl(var(--muted-foreground))'
+					foreground: 'hsl(var(--muted-foreground))',
+					light: 'hsl(var(--muted-light))'
 				},
 				accent: {
 					DEFAULT: 'hsl(var(--accent))',
 					foreground: 'hsl(var(--accent-foreground))',
-					glow: 'hsl(var(--accent-glow))'
+					glow: 'hsl(var(--accent-glow))',
+					soft: 'hsl(var(--accent-soft))'
+				},
+				success: {
+					DEFAULT: 'hsl(var(--success))',
+					glow: 'hsl(var(--success-glow))'
+				},
+				warning: {
+					DEFAULT: 'hsl(var(--warning))',
+					glow: 'hsl(var(--warning-glow))'
 				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
@@ -64,17 +77,24 @@ export default {
 			},
 			backgroundImage: {
 				'gradient-primary': 'var(--gradient-primary)',
+				'gradient-accent': 'var(--gradient-accent)',
 				'gradient-glow': 'var(--gradient-glow)',
 				'gradient-card': 'var(--gradient-card)',
+				'gradient-card-hover': 'var(--gradient-card-hover)',
+				'gradient-mesh': 'var(--gradient-mesh)',
 			},
 			boxShadow: {
 				'glow': 'var(--shadow-glow)',
 				'accent': 'var(--shadow-accent)',
 				'glass': 'var(--shadow-glass)',
+				'card': 'var(--shadow-card)',
+				'card-hover': 'var(--shadow-card-hover)',
+				'inset': 'var(--shadow-inset)',
 			},
 			transitionTimingFunction: {
 				'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
 				'spring': 'cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+				'bounce': 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
